@@ -41,6 +41,15 @@ node {
 	   	}
 	}
 	
+	// Now upload translations to transifex
+	stage ('Upload Translations') {
+		env.TRANSIFEX_SAKAI_PROJECTNAME=transifex_project
+	   	dir ('sakai/l10n') {
+			sh "python tmx.py update --java2po"
+   			sh "python tmx.py upload -m -v"
+	   	}
+	}   	
+
 	// Now download translations from transifex
 	stage ('Download Translations') {
 		env.TRANSIFEX_SAKAI_PROJECTNAME=transifex_project
@@ -54,7 +63,6 @@ node {
 	}   	
 	   	
 	stage ('Publish Patches') {
-	
 		for (int i=0; i<locales.size(); i++) {
 			publishHTML(
 				[allowMissing: false, 
@@ -64,6 +72,5 @@ node {
 				 reportFiles: 'translation_' + locales[i] + '.patch', 
 				 reportName: 'TranslationPatch_' + locales[i] ])
 		}
-				
 	}
 }
